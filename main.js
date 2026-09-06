@@ -41,18 +41,30 @@ function updateUIState() {
   const toolbar = document.getElementById('editor-toolbar');
   const consoleWrap = document.getElementById('console-panel-wrapper');
 
+  // Always show tabs wrapper if we have tabs OR if we are in editor view
+  // But hide editor components if no tabs exist
   if (!hasTabs) {
-    welcome.style.display = 'flex';
+    // Should not happen with Welcome tab logic, but safety net
     tabsWrap.style.display = 'none';
     monaco.style.display = 'none';
     toolbar.style.display = 'none';
     consoleWrap.style.display = 'none';
   } else {
-    welcome.style.display = 'none';
     tabsWrap.style.display = 'flex';
-    monaco.style.display = 'block';
-    toolbar.style.display = 'flex';
-    consoleWrap.style.display = 'flex';
+    
+    // Check if active tab is Welcome
+    const current = activeTab();
+    if (current && current.name === 'Welcome') {
+      welcome.style.display = 'flex';
+      monaco.style.display = 'none';
+      toolbar.style.display = 'none';
+      consoleWrap.style.display = 'none';
+    } else {
+      welcome.style.display = 'none';
+      monaco.style.display = 'block';
+      toolbar.style.display = 'flex';
+      consoleWrap.style.display = 'flex';
+    }
     renderEditorTabs();
   }
 }
@@ -64,11 +76,11 @@ function renderEditorTabs() {
   
   state.tabs.forEach(tab => {
     const el = document.createElement('div');
-    const isStart = tab.name === 'Welcome';
+    const isWelcome = tab.name === 'Welcome';
     el.className = `etab ${tab.id === state.activeTabId ? 'active' : ''} ${tab.dirty ? 'dirty' : ''}`;
     
     let closeHtml = '';
-    if (!isStart) {
+    if (!isWelcome) {
       closeHtml = `<span class="etab-close" onclick="event.stopPropagation(); closeTab('${tab.id}')">
         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
       </span>`;
@@ -96,7 +108,7 @@ function activateTab(id) {
   if (cur && editor) cur.content = editor.getValue();
   state.activeTabId = id;
   const tab = activeTab();
-  if (editor && tab) {
+  if (editor && tab && tab.name !== 'Welcome') {
     editor.setValue(tab.content || '');
     editor.focus();
   }
@@ -106,14 +118,17 @@ function activateTab(id) {
 function closeTab(id) {
   const idx = state.tabs.findIndex((t) => t.id === id);
   if (idx < 0) return;
+  
+  // Prevent closing Welcome tab
+  if (state.tabs[idx].name === 'Welcome') return;
+
   const wasActive = state.activeTabId === id;
   state.tabs.splice(idx, 1);
+  
   if (wasActive) {
     if (state.tabs.length > 0) {
       const next = state.tabs[Math.min(idx, state.tabs.length - 1)];
       activateTab(next.id);
-    } else {
-      updateUIState(); // Show welcome screen
     }
   } else {
     renderEditorTabs();
@@ -147,7 +162,11 @@ function initEditor() {
     });
     
     editorReady = true;
-    // Don't auto-create tabs on load, show welcome screen instead
+    
+    // Initialize Welcome Tab permanently
+    const welcomeTab = { id: 'welcome', name: 'Welcome', content: '', dirty: false, path: null };
+    state.tabs.push(welcomeTab);
+    state.activeTabId = 'welcome';
     updateUIState();
   });
 }
