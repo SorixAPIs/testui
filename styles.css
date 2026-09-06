@@ -25,25 +25,32 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', system-u
 .nav-logo { height: 24px; width: auto; object-fit: contain; margin-right: 16px; }
 .nav-links { display: flex; gap: 4px; background: var(--surface-2); padding: 4px; border-radius: 8px; }
 .nav-btn { 
-  display: flex; align-items: center; justify-content: center; gap: 8px; 
-  padding: 6px; background: transparent; border: none; color: var(--text-dim); 
+  display: flex; align-items: center; justify-content: flex-start; gap: 8px; 
+  padding: 0 6px; background: transparent; border: none; color: var(--text-dim); 
   border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 500; 
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
-  white-space: nowrap; overflow: hidden; width: 36px; min-width: 36px;
+  white-space: nowrap; overflow: hidden; width: 36px; min-width: 36px; height: 36px;
 }
 .nav-btn:hover, .nav-btn.active { 
-  width: 110px; padding: 6px 12px; background: var(--surface-3); color: var(--text); 
+  width: 110px; padding: 0 12px; background: var(--surface-3); color: var(--text); 
 }
-.nav-btn i { width: 16px; height: 16px; flex-shrink: 0; }
-.nav-btn span { opacity: 0; transform: translateX(-4px); transition: all 0.2s ease; }
+.nav-btn i { width: 16px; height: 16px; flex-shrink: 0; margin: 0 auto; }
+.nav-btn:hover i, .nav-btn.active i { margin: 0; }
+.nav-btn span { opacity: 0; transform: translateX(-8px); transition: all 0.2s ease; pointer-events: none; }
 .nav-btn:hover span, .nav-btn.active span { opacity: 1; transform: translateX(0); }
 
 /* Smaller Window Controls */
-.window-controls { display: flex; gap: 6px; }
-.win-btn { background: none; border: none; color: var(--text-muted); width: 28px; height: 28px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
-.win-btn:hover { background: var(--surface-3); color: var(--text); }
+.window-controls { display: flex; gap: 4px; margin-left: 8px; }
+.win-btn { 
+  background: none; border: none; color: var(--text-muted); 
+  width: 24px; height: 24px; border-radius: 4px; 
+  cursor: pointer; display: flex; align-items: center; justify-content: center; 
+  transition: all 0.15s ease; 
+}
+.win-btn:hover { background: var(--surface-3); color: var(--text); transform: scale(1.05); }
+.win-btn:active { transform: scale(0.95); }
 .win-btn.close:hover { background: #ef4444; color: #fff; }
-.win-btn i { width: 14px; height: 14px; }
+.win-btn i { width: 12px; height: 12px; stroke-width: 2.5px; }
 
 /* Content Area & View Transitions */
 .content-area { flex: 1; overflow: hidden; position: relative; }
@@ -90,7 +97,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', system-u
 .add-tab-btn:hover { background: var(--surface-2); color: var(--accent); }
 .add-tab-btn i { width: 16px; height: 16px; }
 
-/* Welcome Screen - Refreshed but same style */
+/* Welcome Screen - Refreshed */
 .welcome-screen { 
   position: absolute; inset: 0; z-index: 15;
   display: flex; flex-direction: column; align-items: center; justify-content: center; 
@@ -138,7 +145,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', system-u
 .console-line.dim { color: var(--text-dim); }
 .ts { color: var(--text-muted); margin-right: 8px; }
 
-/* ScriptHub - Fixed Category Navigation */
+/* ScriptHub */
 .scripthub-container { display: flex; flex-direction: column; height: 100%; background: var(--bg); }
 .sh-header { padding: 16px 24px; border-bottom: 1px solid var(--border); background: var(--surface); }
 .sh-tabs { display: flex; gap: 24px; margin-bottom: 16px; }
