@@ -1,95 +1,312 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Lunar</title>
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <div id="app">
-      <header class="titlebar">
-        <div class="titlebar-left">
-          <span class="brand">Lunar</span>
-          <span class="brand-sub">— executor</span>
-        </div>
-        <div class="titlebar-right">
-          <span id="attach-status" class="status-pill status-detached">no client</span>
-        </div>
-      </header>
-
-      <nav class="tabs" id="tabs">
-        <div class="tabs-list" id="tabs-list"></div>
-        <div class="tabs-actions">
-          <button class="tab-btn" id="tab-new" title="New tab">+</button>
-        </div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lunar</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="app">
+    <!-- Top Navigation Bar -->
+    <header class="top-nav">
+      <div class="logo">N</div>
+      <nav class="nav-links">
+        <button class="nav-btn active" data-tab="editor">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          Editor
+        </button>
+        <button class="nav-btn" data-tab="scripthub">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+          ScriptHub
+        </button>
+        <button class="nav-btn" data-tab="settings">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          Settings
+        </button>
       </nav>
+      <div class="window-controls">
+        <span>—</span>
+        <span>□</span>
+        <span></span>
+      </div>
+    </header>
 
-      <main class="main">
-        <aside class="sidebar">
-          <div class="sidebar-header">
-            <input
-              id="script-filter"
-              type="text"
-              class="filter-input"
-              placeholder="Filter scripts..."
-              spellcheck="false"
-              autocomplete="off"
-            />
-          </div>
-          <div class="sidebar-section-header">
-            <span>Scripts</span>
-            <button id="new-script-btn" class="mini-btn" title="New script">+</button>
-          </div>
-          <div class="sidebar-tree" id="sidebar-tree"></div>
-          <div class="sidebar-footer">
-            <span class="hint">Place scripts in</span>
-            <code>%APPDATA%\Lunar\scripts</code>
-          </div>
-        </aside>
-
-        <section class="editor-pane">
-          <div id="monaco-host" class="monaco-host"></div>
-          <div class="editor-toolbar">
-            <button id="attach-btn" class="primary-btn">Attach</button>
-            <button id="execute-btn" class="primary-btn accent">Execute</button>
-            <button id="save-btn" class="secondary-btn">Save</button>
-            <span class="grow"></span>
-            <span id="active-tab-name" class="active-tab-name"></span>
-          </div>
-        </section>
-      </main>
-
-      <section class="console" id="console-panel">
-        <div class="console-header">
-          <span>Console</span>
-          <button id="console-clear" class="mini-btn">clear</button>
+    <!-- Main Content Area -->
+    <main class="content-area">
+      
+      <!-- EDITOR TAB -->
+      <section id="tab-editor" class="view-section active">
+        <div class="editor-layout">
+          <aside class="sidebar">
+            <div class="sidebar-header">
+              <input id="script-filter" type="text" class="filter-input" placeholder="Filter scripts..." spellcheck="false" autocomplete="off" />
+            </div>
+            <div class="sidebar-section-header">
+              <span>Scripts</span>
+              <button id="new-script-btn" class="mini-btn" title="New script">+</button>
+            </div>
+            <div class="sidebar-tree" id="sidebar-tree"></div>
+            <div class="sidebar-footer">
+              <span class="hint">Place scripts in</span>
+              <code>%APPDATA%\Lunar\scripts</code>
+            </div>
+          </aside>
+          <section class="editor-pane">
+            <div id="monaco-host" class="monaco-host"></div>
+            <div class="editor-toolbar">
+              <button id="attach-btn" class="primary-btn">Attach</button>
+              <button id="execute-btn" class="primary-btn accent">Execute</button>
+              <button id="save-btn" class="secondary-btn">Save</button>
+              <span class="grow"></span>
+              <span id="active-tab-name" class="active-tab-name"></span>
+            </div>
+          </section>
         </div>
-        <div class="console-body" id="console-body"></div>
+        <div class="console-panel-wrapper">
+          <section class="console" id="console-panel">
+            <div class="console-header">
+              <span>Console</span>
+              <button id="console-clear" class="mini-btn">clear</button>
+            </div>
+            <div class="console-body" id="console-body"></div>
+          </section>
+        </div>
       </section>
 
-      <footer class="statusbar">
-        <span id="status-text">ready</span>
-        <span class="grow"></span>
-        <span id="status-right"></span>
-      </footer>
-    </div>
+      <!-- SCRIPT HUB TAB -->
+      <section id="tab-scripthub" class="view-section">
+        <div class="scripthub-container">
+          <div class="sh-header">
+            <div class="sh-tabs">
+              <button class="sh-tab active" data-sort="new">New</button>
+              <button class="sh-tab" data-sort="trending">Trending</button>
+              <button class="sh-tab" data-sort="favorites">Favorites</button>
+            </div>
+            <div class="sh-search-row">
+              <div class="search-box">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" id="sh-search" placeholder="Search scripts..." />
+              </div>
+              <button id="sh-filter-btn" class="filter-btn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>
+                Filter
+              </button>
+            </div>
+          </div>
+          
+          <div class="sh-grid" id="sh-grid">
+            <!-- Scripts injected here via JS -->
+            <div class="loading-state">Loading scripts from Scriptblox...</div>
+          </div>
+        </div>
+        
+        <!-- Filter Modal -->
+        <div id="sh-filter-modal" class="modal-overlay hidden">
+          <div class="modal-content filter-modal">
+            <div class="modal-header">
+              <h3>Filters</h3>
+              <button id="close-filter-modal" class="close-btn">×</button>
+            </div>
+            <div class="modal-body">
+              <div class="filter-group">
+                <label>Order by</label>
+                <select id="filter-order">
+                  <option value="newest">Newest</option>
+                  <option value="views">Most viewed</option>
+                  <option value="likes">Most liked</option>
+                </select>
+              </div>
+              <div class="filter-group">
+                <label>Direction</label>
+                <select id="filter-dir">
+                  <option value="desc">Descending</option>
+                  <option value="asc">Ascending</option>
+                </select>
+              </div>
+              <div class="filter-toggles">
+                <label>Toggle filters</label>
+                <div class="toggle-grid">
+                  <button class="toggle-pill" data-key="keyless">Keyless</button>
+                  <button class="toggle-pill" data-key="free">Free</button>
+                  <button class="toggle-pill" data-key="mobile">Mobile</button>
+                  <button class="toggle-pill" data-key="verified">Verified</button>
+                  <button class="toggle-pill" data-key="updated_week">Updated this week</button>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button id="reset-filters" class="secondary-btn">Reset</button>
+              <button id="apply-filters" class="primary-btn accent">Done</button>
+            </div>
+          </div>
+        </div>
+      </section>
 
-    <script>
-      window.MonacoEnvironment = {
-        getWorkerUrl: function (moduleId, label) {
-          const baseUrl = 'https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs';
-          return (
-            'data:text/javascript;charset=utf-8,' +
-            encodeURIComponent(
-              `self.MonacoEnvironment = { baseUrl: '${baseUrl}/' };` +
-              `importScripts('${baseUrl}/base/worker/workerMain.js');`
-            )
-          );
-        },
-      };
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/loader.js"></script>
-    <script src="main.js"></script>
-  </body>
+      <!-- SETTINGS TAB -->
+      <section id="tab-settings" class="view-section">
+        <div class="settings-layout">
+          <aside class="settings-sidebar">
+            <div class="settings-nav-group">
+              <div class="nav-group-title">Appearance</div>
+              <button class="settings-nav-item active" data-setting="appearance">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                Appearance
+              </button>
+              <button class="settings-nav-item" data-setting="editor">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+                Editor
+              </button>
+              <button class="settings-nav-item" data-setting="explorer">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                Explorer
+              </button>
+              <button class="settings-nav-item" data-setting="tabs">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line></svg>
+                Tabs
+              </button>
+              <button class="settings-nav-item" data-setting="window">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+                Window
+              </button>
+            </div>
+            
+            <div class="settings-nav-group">
+              <div class="nav-group-title">Behavior</div>
+              <button class="settings-nav-item" data-setting="resources">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                Resources
+              </button>
+              <button class="settings-nav-item" data-setting="client">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                Client
+              </button>
+              <button class="settings-nav-item" data-setting="console">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+                Console
+              </button>
+            </div>
+
+            <div class="settings-nav-group">
+              <div class="nav-group-title">Discord</div>
+              <button class="settings-nav-item" data-setting="discord">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.095 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.095 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+                Discord
+              </button>
+            </div>
+
+            <div class="settings-nav-group">
+              <div class="nav-group-title">Roblox</div>
+              <button class="settings-nav-item" data-setting="account">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                Account Manager
+              </button>
+              <button class="settings-nav-item" data-setting="roblox">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+                Roblox Manager
+              </button>
+            </div>
+
+            <div class="settings-footer">
+              <div class="search-settings">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" placeholder="Search settings" />
+              </div>
+              <button class="reset-btn">Reset all settings</button>
+            </div>
+          </aside>
+
+          <div class="settings-content">
+            <!-- System / Resources View (Default) -->
+            <div id="setting-resources" class="setting-pane active">
+              <h2 class="pane-title">System</h2>
+              <p class="pane-subtitle">Lunar's latest files</p>
+              
+              <div class="settings-card">
+                <h3 class="card-title">Downloads</h3>
+                <div class="list-item">
+                  <div class="item-info">
+                    <div class="item-name">Download Module</div>
+                    <div class="item-desc">Downloads Lunar.dll</div>
+                  </div>
+                  <button class="download-btn">Download</button>
+                </div>
+                <div class="list-item">
+                  <div class="item-info">
+                    <div class="item-name">Download Injector</div>
+                    <div class="item-desc">Downloads Injector.exe</div>
+                  </div>
+                  <button class="download-btn">Download</button>
+                </div>
+                <div class="list-item">
+                  <div class="item-info">
+                    <div class="item-name">Download Luau LSP</div>
+                    <div class="item-desc">Downloads and installs the Luau language server</div>
+                  </div>
+                  <button class="download-btn">Download</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Discord View -->
+            <div id="setting-discord" class="setting-pane">
+              <h2 class="pane-title">Discord</h2>
+              <p class="pane-subtitle">Community and support</p>
+              <div class="settings-card">
+                <div class="discord-invite">
+                  <div class="discord-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.095 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.095 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+                  </div>
+                  <div class="discord-info">
+                    <div class="discord-name">Lunar Community</div>
+                    <div class="discord-link">discord.gg/reallunar</div>
+                  </div>
+                  <a href="https://discord.gg/reallunar" target="_blank" class="join-btn">Join Server</a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Placeholder for other settings -->
+            <div id="setting-appearance" class="setting-pane">
+              <h2 class="pane-title">Appearance</h2>
+              <p class="pane-subtitle">Customize how Lunar looks</p>
+              <div class="settings-card"><p style="color:var(--text-dim)">Theme options coming soon...</p></div>
+            </div>
+            <div id="setting-editor" class="setting-pane">
+              <h2 class="pane-title">Editor</h2>
+              <p class="pane-subtitle">Configure the code editor</p>
+              <div class="settings-card"><p style="color:var(--text-dim)">Font size and theme options coming soon...</p></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+    
+    <footer class="statusbar">
+      <span id="status-text">ready</span>
+      <span class="grow"></span>
+      <span id="status-right">v1.0.0</span>
+    </footer>
+  </div>
+
+  <script>
+    window.MonacoEnvironment = {
+      getWorkerUrl: function (moduleId, label) {
+        const baseUrl = 'https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs';
+        return (
+          'data:text/javascript;charset=utf-8,' +
+          encodeURIComponent(
+            `self.MonacoEnvironment = { baseUrl: '${baseUrl}/' };` +
+            `importScripts('${baseUrl}/base/worker/workerMain.js');`
+          )
+        );
+      },
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/loader.js"></script>
+  <script src="main.js"></script>
+</body>
 </html>
