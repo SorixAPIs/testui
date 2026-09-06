@@ -33,6 +33,30 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
 });
 
 // --- EDITOR LOGIC ---
+function updateUIState() {
+  const hasTabs = state.tabs.length > 0;
+  const welcome = document.getElementById('welcome-screen');
+  const tabsWrap = document.getElementById('editor-tabs-wrapper');
+  const monaco = document.getElementById('monaco-host');
+  const toolbar = document.getElementById('editor-toolbar');
+  const consoleWrap = document.getElementById('console-panel-wrapper');
+
+  if (!hasTabs) {
+    welcome.style.display = 'flex';
+    tabsWrap.style.display = 'none';
+    monaco.style.display = 'none';
+    toolbar.style.display = 'none';
+    consoleWrap.style.display = 'none';
+  } else {
+    welcome.style.display = 'none';
+    tabsWrap.style.display = 'flex';
+    monaco.style.display = 'block';
+    toolbar.style.display = 'flex';
+    consoleWrap.style.display = 'flex';
+    renderEditorTabs();
+  }
+}
+
 function renderEditorTabs() {
   const container = document.getElementById('editor-tabs');
   if (!container) return;
@@ -40,13 +64,17 @@ function renderEditorTabs() {
   
   state.tabs.forEach(tab => {
     const el = document.createElement('div');
+    const isStart = tab.name === 'Welcome';
     el.className = `etab ${tab.id === state.activeTabId ? 'active' : ''} ${tab.dirty ? 'dirty' : ''}`;
-    el.innerHTML = `
-      <span class="etab-name">${tab.name}</span>
-      <span class="etab-close" onclick="event.stopPropagation(); closeTab('${tab.id}')">
+    
+    let closeHtml = '';
+    if (!isStart) {
+      closeHtml = `<span class="etab-close" onclick="event.stopPropagation(); closeTab('${tab.id}')">
         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-      </span>
-    `;
+      </span>`;
+    }
+
+    el.innerHTML = `<span class="etab-name">${tab.name}</span>${closeHtml}`;
     el.onclick = () => activateTab(tab.id);
     container.appendChild(el);
   });
@@ -56,7 +84,7 @@ function renderEditorTabs() {
   if (nameEl) nameEl.textContent = a ? a.name : '';
 }
 
-function addTab(name = 'untitled', content = '', path = null) {
+function addTab(name = 'Untitled', content = '', path = null) {
   const tab = { id: uid(), name, content, dirty: false, path };
   state.tabs.push(tab);
   activateTab(tab.id);
@@ -72,7 +100,7 @@ function activateTab(id) {
     editor.setValue(tab.content || '');
     editor.focus();
   }
-  renderEditorTabs();
+  updateUIState();
 }
 
 function closeTab(id) {
@@ -80,13 +108,13 @@ function closeTab(id) {
   if (idx < 0) return;
   const wasActive = state.activeTabId === id;
   state.tabs.splice(idx, 1);
-  if (state.tabs.length === 0) {
-    addTab('Start', '-- welcome to Lunar\nprint("hello skid works")\n');
-    return;
-  }
   if (wasActive) {
-    const next = state.tabs[Math.min(idx, state.tabs.length - 1)];
-    activateTab(next.id);
+    if (state.tabs.length > 0) {
+      const next = state.tabs[Math.min(idx, state.tabs.length - 1)];
+      activateTab(next.id);
+    } else {
+      updateUIState(); // Show welcome screen
+    }
   } else {
     renderEditorTabs();
   }
@@ -108,7 +136,7 @@ function initEditor() {
       });
     }
     editor = monaco.editor.create(document.getElementById('monaco-host'), {
-      value:'-- welcome to Lunar\nprint("hello skid works")\n', language:'plaintext', theme:'vs-dark',
+      value:'', language:'plaintext', theme:'vs-dark',
       automaticLayout:true, minimap:{enabled:false}, fontSize:13, fontFamily:'Consolas, Menlo, monospace',
       scrollBeyondLastLine:false, renderWhitespace:'selection', tabSize:2
     });
@@ -118,20 +146,10 @@ function initEditor() {
       }
     });
     
-    // Initialize first tab AFTER editor is ready
     editorReady = true;
-    if(state.tabs.length===0) {
-      addTab('Start', '-- welcome to Lunar\nprint("hello skid works")\n');
-    } else {
-      const t=activeTab(); if(t&&editor) editor.setValue(t.content);
-    }
+    // Don't auto-create tabs on load, show welcome screen instead
+    updateUIState();
   });
-}
-
-// Sidebar is now empty - no mock scripts
-function renderSidebar() {
-  const tree = document.getElementById('sidebar-tree'); 
-  if(tree) tree.innerHTML = '<div style="padding:12px;color:var(--text-muted);font-size:12px;">No scripts loaded</div>';
 }
 
 // --- SCRIPT HUB (Scriptblox API) ---
@@ -228,19 +246,22 @@ document.querySelectorAll('.settings-nav-item').forEach(item => {
 window.addEventListener('DOMContentLoaded', () => {
   lucide.createIcons();
   initEditor(); 
-  renderSidebar(); 
   fetchScripts();
   log('dim', 'Lunar UI ready'); 
   setStatus('ready');
   
+  // Add Tab Button
+  document.getElementById('add-tab-btn').addEventListener('click', () => {
+    if(editorReady) addTab('Untitled', '');
+  });
+
   // Global shortcuts
   window.addEventListener('keydown', (e) => {
     if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='s') { e.preventDefault(); log('dim','Save triggered (mock)'); }
     if((e.ctrlKey||e.metaKey) && e.key==='Enter') { e.preventDefault(); log('success','Execute triggered (mock)'); }
     if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='n') { 
       e.preventDefault(); 
-      if(editorReady) addTab('untitled', ''); 
-      else log('error', 'Editor not ready yet');
+      if(editorReady) addTab('Untitled', ''); 
     }
   });
 });
