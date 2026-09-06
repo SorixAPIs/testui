@@ -34,39 +34,34 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
 
 // --- EDITOR LOGIC ---
 function updateUIState() {
-  const hasTabs = state.tabs.length > 0;
   const welcome = document.getElementById('welcome-screen');
   const tabsWrap = document.getElementById('editor-tabs-wrapper');
   const monaco = document.getElementById('monaco-host');
   const toolbar = document.getElementById('editor-toolbar');
   const consoleWrap = document.getElementById('console-panel-wrapper');
 
-  // Always show tabs wrapper if we have tabs OR if we are in editor view
-  // But hide editor components if no tabs exist
-  if (!hasTabs) {
-    // Should not happen with Welcome tab logic, but safety net
-    tabsWrap.style.display = 'none';
+  // Always show tabs wrapper in editor view
+  tabsWrap.style.display = 'flex';
+  
+  const current = activeTab();
+  if (current && current.name === 'Welcome') {
+    welcome.style.display = 'flex';
     monaco.style.display = 'none';
     toolbar.style.display = 'none';
     consoleWrap.style.display = 'none';
   } else {
-    tabsWrap.style.display = 'flex';
+    welcome.style.display = 'none';
+    monaco.style.display = 'block';
+    toolbar.style.display = 'flex';
+    consoleWrap.style.display = 'flex';
     
-    // Check if active tab is Welcome
-    const current = activeTab();
-    if (current && current.name === 'Welcome') {
-      welcome.style.display = 'flex';
-      monaco.style.display = 'none';
-      toolbar.style.display = 'none';
-      consoleWrap.style.display = 'none';
-    } else {
-      welcome.style.display = 'none';
-      monaco.style.display = 'block';
-      toolbar.style.display = 'flex';
-      consoleWrap.style.display = 'flex';
+    // Sync editor content if switching to a code tab
+    if (editor && current) {
+      editor.setValue(current.content || '');
+      editor.focus();
     }
-    renderEditorTabs();
   }
+  renderEditorTabs();
 }
 
 function renderEditorTabs() {
@@ -105,13 +100,8 @@ function addTab(name = 'Untitled', content = '', path = null) {
 
 function activateTab(id) {
   const cur = activeTab();
-  if (cur && editor) cur.content = editor.getValue();
+  if (cur && editor && cur.name !== 'Welcome') cur.content = editor.getValue();
   state.activeTabId = id;
-  const tab = activeTab();
-  if (editor && tab && tab.name !== 'Welcome') {
-    editor.setValue(tab.content || '');
-    editor.focus();
-  }
   updateUIState();
 }
 
