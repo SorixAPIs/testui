@@ -6,6 +6,16 @@
   <title>Lunar</title>
   <link rel="stylesheet" href="styles.css" />
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    // Anti-DevTools Protection
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.onkeydown = function(e) {
+      if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && e.keyCode == 73) || 
+         (e.ctrlKey && e.shiftKey && e.keyCode == 74) || (e.ctrlKey && e.keyCode == 85)) {
+        return false;
+      }
+    };
+  </script>
 </head>
 <body>
   <div id="app">
@@ -46,7 +56,9 @@
               <span>Scripts</span>
               <button id="new-script-btn" class="mini-btn" title="New script"><i data-lucide="plus" style="width:12px;height:12px;"></i></button>
             </div>
-            <div class="sidebar-tree" id="sidebar-tree"></div>
+            <div class="sidebar-tree" id="sidebar-tree">
+              <div style="padding:12px;color:var(--text-muted);font-size:12px;">No scripts loaded</div>
+            </div>
             <div class="sidebar-footer">
               <span class="hint">Place scripts in</span>
               <code>%APPDATA%\Lunar\scripts</code>
@@ -54,14 +66,62 @@
           </aside>
           
           <section class="editor-pane">
-            <!-- Tab Bar inside Editor -->
-            <div class="editor-tabs" id="editor-tabs">
-              <!-- Tabs injected via JS -->
+            <!-- Welcome Screen (Shown when no tabs or Start tab active) -->
+            <div id="welcome-screen" class="welcome-screen">
+              <h1 class="welcome-title">Made to break the limits</h1>
+              <div class="welcome-grid">
+                <div class="welcome-card" onclick="addTab('Untitled', '')">
+                  <div class="wc-icon"><i data-lucide="file-plus"></i></div>
+                  <div class="wc-text">
+                    <div class="wc-title">New tab</div>
+                    <div class="wc-desc">Open an empty script</div>
+                  </div>
+                  <i data-lucide="chevron-right" class="wc-arrow"></i>
+                </div>
+                <div class="welcome-card" onclick="document.querySelector('[data-tab=scripthub]').click()">
+                  <div class="wc-icon"><i data-lucide="globe"></i></div>
+                  <div class="wc-text">
+                    <div class="wc-title">Script Hub</div>
+                    <div class="wc-desc">Browse community scripts</div>
+                  </div>
+                  <i data-lucide="chevron-right" class="wc-arrow"></i>
+                </div>
+                <div class="welcome-card" onclick="document.querySelector('[data-tab=settings]').click()">
+                  <div class="wc-icon"><i data-lucide="settings"></i></div>
+                  <div class="wc-text">
+                    <div class="wc-title">Settings</div>
+                    <div class="wc-desc">Configure Lunar</div>
+                  </div>
+                  <i data-lucide="chevron-right" class="wc-arrow"></i>
+                </div>
+                <div class="welcome-card" onclick="window.open('https://discord.gg/reallunar', '_blank')">
+                  <div class="wc-icon"><i data-lucide="message-circle"></i></div>
+                  <div class="wc-text">
+                    <div class="wc-title">Discord</div>
+                    <div class="wc-desc">Join the community</div>
+                  </div>
+                  <i data-lucide="chevron-right" class="wc-arrow"></i>
+                </div>
+                <div class="welcome-card full-width">
+                  <div class="wc-icon"><i data-lucide="shield-alert"></i></div>
+                  <div class="wc-text">
+                    <div class="wc-title">Exclude from Defender</div>
+                    <div class="wc-desc">Recommended to avoid Defender's false positives</div>
+                  </div>
+                  <i data-lucide="chevron-right" class="wc-arrow"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tab Bar (Hidden initially) -->
+            <div class="editor-tabs-wrapper" id="editor-tabs-wrapper" style="display:none;">
+              <div class="editor-tabs" id="editor-tabs"></div>
+              <button class="add-tab-btn" id="add-tab-btn" title="New tab"><i data-lucide="plus"></i></button>
             </div>
             
-            <div id="monaco-host" class="monaco-host"></div>
+            <div id="monaco-host" class="monaco-host" style="display:none;"></div>
             
-            <div class="editor-toolbar">
+            <div class="editor-toolbar" id="editor-toolbar" style="display:none;">
               <button id="attach-btn" class="primary-btn"><i data-lucide="plug-zap" style="width:14px;height:14px;margin-right:6px;"></i>Attach</button>
               <button id="execute-btn" class="primary-btn accent"><i data-lucide="play" style="width:14px;height:14px;margin-right:6px;"></i>Execute</button>
               <button id="save-btn" class="secondary-btn"><i data-lucide="save" style="width:14px;height:14px;margin-right:6px;"></i>Save</button>
@@ -71,7 +131,7 @@
           </section>
         </div>
         
-        <div class="console-panel-wrapper">
+        <div class="console-panel-wrapper" id="console-panel-wrapper" style="display:none;">
           <section class="console" id="console-panel">
             <div class="console-header">
               <span><i data-lucide="terminal" style="width:12px;height:12px;vertical-align:text-bottom;margin-right:6px;"></i>Console</span>
