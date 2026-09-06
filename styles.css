@@ -20,7 +20,7 @@
 body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, -apple-system, sans-serif; font-size: 13px; height: 100vh; overflow: hidden; user-select: none; }
 #app { display: flex; flex-direction: column; height: 100%; }
 
-/* Top Nav - Icon Only + Hover Expand */
+/* Top Nav - Compact Expandable Icons */
 .top-nav { display: flex; align-items: center; justify-content: space-between; padding: 0 16px; height: 48px; background: var(--surface); border-bottom: 1px solid var(--border); z-index: 50; }
 .nav-logo { height: 24px; width: auto; object-fit: contain; margin-right: 16px; }
 .nav-links { display: flex; gap: 4px; background: var(--surface-2); padding: 4px; border-radius: 8px; }
@@ -68,9 +68,31 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', system-u
 
 .editor-pane { flex: 1; display: flex; flex-direction: column; background: var(--bg); position: relative; overflow: hidden; }
 
-/* Refreshed Welcome Screen */
+/* Document/Editor Tab Bar - RESTORED AT TOP */
+.editor-tabs-wrapper { display: flex; align-items: stretch; background: var(--surface); border-bottom: 1px solid var(--border); height: 36px; flex-shrink: 0; z-index: 20; }
+.editor-tabs { display: flex; flex: 1; overflow-x: auto; scrollbar-width: none; }
+.editor-tabs::-webkit-scrollbar { display: none; }
+.etab { 
+  display: flex; align-items: center; gap: 6px; padding: 0 16px; font-size: 12px; 
+  color: var(--text-dim); cursor: pointer; border-right: 1px solid var(--border); 
+  min-width: 100px; max-width: 200px; user-select: none; transition: all 0.2s; 
+  white-space: nowrap; position: relative; animation: tabSlideIn 0.2s ease;
+}
+@keyframes tabSlideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+.etab:hover { background: var(--surface-2); color: var(--text); }
+.etab.active { background: var(--bg); color: var(--accent); }
+.etab.active::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: var(--accent); }
+.etab .etab-close { margin-left: auto; width: 16px; height: 16px; border-radius: 4px; display: flex; align-items: center; justify-content: center; opacity: 0.5; transition: all 0.2s; }
+.etab .etab-close:hover { opacity: 1; background: rgba(255,255,255,0.1); color: var(--error); }
+.etab.dirty .etab-name::after { content: ' •'; color: var(--accent); }
+
+.add-tab-btn { width: 36px; height: 100%; background: transparent; border: none; border-left: 1px solid var(--border); color: var(--text-dim); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0; }
+.add-tab-btn:hover { background: var(--surface-2); color: var(--accent); }
+.add-tab-btn i { width: 16px; height: 16px; }
+
+/* Welcome Screen - Refreshed but same style */
 .welcome-screen { 
-  position: absolute; inset: 0; z-index: 20;
+  position: absolute; inset: 0; z-index: 15;
   display: flex; flex-direction: column; align-items: center; justify-content: center; 
   padding: 40px; overflow-y: auto; background: var(--bg); animation: fadeInUp 0.5s ease; 
 }
@@ -92,28 +114,6 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', system-u
 .wc-desc { font-size: 11px; color: var(--text-muted); }
 .wc-arrow { color: var(--text-muted); width: 14px; height: 14px; transition: transform 0.2s; }
 .welcome-card:hover .wc-arrow { transform: translateX(3px); color: var(--accent); }
-
-/* Editor Tabs at TOP */
-.editor-tabs-wrapper { display: flex; align-items: stretch; background: var(--surface); border-bottom: 1px solid var(--border); height: 36px; flex-shrink: 0; z-index: 10; }
-.editor-tabs { display: flex; flex: 1; overflow-x: auto; scrollbar-width: none; }
-.editor-tabs::-webkit-scrollbar { display: none; }
-.etab { 
-  display: flex; align-items: center; gap: 6px; padding: 0 16px; font-size: 12px; 
-  color: var(--text-dim); cursor: pointer; border-right: 1px solid var(--border); 
-  min-width: 100px; max-width: 200px; user-select: none; transition: all 0.2s; 
-  white-space: nowrap; position: relative; animation: tabSlideIn 0.2s ease;
-}
-@keyframes tabSlideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
-.etab:hover { background: var(--surface-2); color: var(--text); }
-.etab.active { background: var(--bg); color: var(--accent); }
-.etab.active::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: var(--accent); }
-.etab .etab-close { margin-left: auto; width: 16px; height: 16px; border-radius: 4px; display: flex; align-items: center; justify-content: center; opacity: 0.5; transition: all 0.2s; }
-.etab .etab-close:hover { opacity: 1; background: rgba(255,255,255,0.1); color: var(--error); }
-.etab.dirty .etab-name::after { content: ' •'; color: var(--accent); }
-
-.add-tab-btn { width: 36px; height: 100%; background: transparent; border: none; border-left: 1px solid var(--border); color: var(--text-dim); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0; }
-.add-tab-btn:hover { background: var(--surface-2); color: var(--accent); }
-.add-tab-btn i { width: 16px; height: 16px; }
 
 .monaco-host { flex: 1; min-height: 0; position: relative; z-index: 5; }
 .editor-toolbar { display: flex; align-items: center; padding: 8px 12px; background: var(--surface); border-top: 1px solid var(--border); gap: 8px; flex-shrink: 0; z-index: 10; }
@@ -138,11 +138,15 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', system-u
 .console-line.dim { color: var(--text-dim); }
 .ts { color: var(--text-muted); margin-right: 8px; }
 
-/* ScriptHub */
+/* ScriptHub - Fixed Category Navigation */
 .scripthub-container { display: flex; flex-direction: column; height: 100%; background: var(--bg); }
 .sh-header { padding: 16px 24px; border-bottom: 1px solid var(--border); background: var(--surface); }
 .sh-tabs { display: flex; gap: 24px; margin-bottom: 16px; }
-.sh-tab { background: none; border: none; color: var(--text-muted); font-size: 14px; font-weight: 500; cursor: pointer; padding-bottom: 8px; border-bottom: 2px solid transparent; transition: all 0.2s; }
+.sh-tab { 
+  background: none; border: none; color: var(--text-muted); font-size: 14px; font-weight: 500; 
+  cursor: pointer; padding-bottom: 8px; border-bottom: 2px solid transparent; 
+  transition: all 0.2s; position: relative; z-index: 5;
+}
 .sh-tab:hover { color: var(--text); }
 .sh-tab.active { color: var(--text); border-bottom-color: var(--accent); }
 .sh-search-row { display: flex; gap: 12px; }
