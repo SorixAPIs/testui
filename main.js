@@ -29,23 +29,63 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
 });
 
 // --- EDITOR LOGIC ---
-function renderTabs() {
-  // Simplified for web preview: just update toolbar name
+function renderEditorTabs() {
+  const container = document.getElementById('editor-tabs');
+  if (!container) return;
+  container.innerHTML = '';
+  
+  state.tabs.forEach(tab => {
+    const el = document.createElement('div');
+    el.className = `etab ${tab.id === state.activeTabId ? 'active' : ''} ${tab.dirty ? 'dirty' : ''}`;
+    el.innerHTML = `
+      <span class="etab-name">${tab.name}</span>
+      <span class="etab-close" onclick="event.stopPropagation(); closeTab('${tab.id}')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </span>
+    `;
+    el.onclick = () => activateTab(tab.id);
+    container.appendChild(el);
+  });
+  
+  const nameEl = document.getElementById('active-tab-name');
   const a = activeTab();
-  const el = document.getElementById('active-tab-name');
-  if(el) el.textContent = a ? a.name : '';
+  if (nameEl) nameEl.textContent = a ? a.name : '';
 }
 
-function addTab(name='untitled', content='', path=null) {
-  const tab = {id:uid(), name, content, dirty:false, path};
-  state.tabs.push(tab); activateTab(tab.id); return tab;
+function addTab(name = 'untitled', content = '', path = null) {
+  const tab = { id: uid(), name, content, dirty: false, path };
+  state.tabs.push(tab);
+  activateTab(tab.id);
+  return tab;
 }
 
 function activateTab(id) {
-  const cur = activeTab(); if(cur && editor) cur.content = editor.getValue();
-  state.activeTabId = id; const tab = activeTab();
-  if(editor && tab) { editor.setValue(tab.content||''); editor.focus(); }
-  renderTabs();
+  const cur = activeTab();
+  if (cur && editor) cur.content = editor.getValue();
+  state.activeTabId = id;
+  const tab = activeTab();
+  if (editor && tab) {
+    editor.setValue(tab.content || '');
+    editor.focus();
+  }
+  renderEditorTabs();
+}
+
+function closeTab(id) {
+  const idx = state.tabs.findIndex((t) => t.id === id);
+  if (idx < 0) return;
+  const wasActive = state.activeTabId === id;
+  state.tabs.splice(idx, 1);
+  if (state.tabs.length === 0) {
+    addTab('Start', '-- welcome to Lunar\nprint("hello skid works")\n');
+    return;
+  }
+  if (wasActive) {
+    const next = state.tabs[Math.min(idx, state.tabs.length - 1)];
+    activateTab(next.id);
+  } else {
+    renderEditorTabs();
+  }
 }
 
 function initEditor() {
@@ -70,7 +110,7 @@ function initEditor() {
     });
     editor.onDidChangeModelContent(() => {
       const t = activeTab(); if(t && editor.getValue() !== t.content) {
-        t.content = editor.getValue(); if(!t.dirty){t.dirty=true; renderTabs();}
+        t.content = editor.getValue(); if(!t.dirty){t.dirty=true; renderEditorTabs();}
       }
     });
     if(state.tabs.length===0) addTab('Start', '-- welcome to Lunar\nprint("hello skid works")\n');
@@ -181,8 +221,12 @@ document.querySelectorAll('.settings-nav-item').forEach(item => {
 
 // --- INIT ---
 window.addEventListener('DOMContentLoaded', () => {
-  initEditor(); renderSidebar(); fetchScripts();
-  log('dim', 'Lunar UI ready'); setStatus('ready');
+  lucide.createIcons();
+  initEditor(); 
+  renderSidebar(); 
+  fetchScripts();
+  log('dim', 'Lunar UI ready'); 
+  setStatus('ready');
   
   // Global shortcuts
   window.addEventListener('keydown', (e) => {
