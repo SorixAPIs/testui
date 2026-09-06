@@ -3,7 +3,7 @@ const state = {
   tabs: [], 
   activeTabId: null, 
   nextTabId: 1, 
-  shCategory: 'new', // Fixed: track active Script Hub category
+  shCategory: 'new',
   shFilters: { keyless: false, free: false, mobile: false, verified: false, updated_week: false }
 };
 let editor = null;
@@ -40,7 +40,6 @@ function updateUIState() {
   const toolbar = document.getElementById('editor-toolbar');
   const consoleWrap = document.getElementById('console-panel-wrapper');
 
-  // Always show tabs wrapper in editor view
   tabsWrap.style.display = 'flex';
   
   const current = activeTab();
@@ -55,7 +54,6 @@ function updateUIState() {
     toolbar.style.display = 'flex';
     consoleWrap.style.display = 'flex';
     
-    // Sync editor content if switching to a code tab
     if (editor && current) {
       editor.setValue(current.content || '');
       editor.focus();
@@ -109,7 +107,6 @@ function closeTab(id) {
   const idx = state.tabs.findIndex((t) => t.id === id);
   if (idx < 0) return;
   
-  // Prevent closing Welcome tab
   if (state.tabs[idx].name === 'Welcome') return;
 
   const wasActive = state.activeTabId === id;
@@ -153,7 +150,6 @@ function initEditor() {
     
     editorReady = true;
     
-    // Initialize Welcome Tab permanently
     const welcomeTab = { id: 'welcome', name: 'Welcome', content: '', dirty: false, path: null };
     state.tabs.push(welcomeTab);
     state.activeTabId = 'welcome';
@@ -161,13 +157,12 @@ function initEditor() {
   });
 }
 
-// --- SCRIPT HUB (Fixed Category Switching) ---
+// --- SCRIPT HUB ---
 async function fetchScripts(query='', category='new') {
   const grid = document.getElementById('sh-grid');
   grid.innerHTML = '<div class="loading-state">Fetching from Scriptblox...</div>';
   
   try {
-    // Use category parameter for API filtering if supported
     const url = `https://scriptblox.com/api/script/search?q=${encodeURIComponent(query)}&page=1`;
     const res = await fetch(url);
     const data = await res.json();
@@ -221,7 +216,7 @@ async function fetchScripts(query='', category='new') {
   }
 }
 
-// Fix: Script Hub Category Click Handlers
+// Script Hub Category Click Handlers
 document.querySelectorAll('.sh-tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.sh-tab').forEach(t => t.classList.remove('active'));
@@ -270,16 +265,14 @@ document.querySelectorAll('.settings-nav-item').forEach(item => {
 window.addEventListener('DOMContentLoaded', () => {
   lucide.createIcons();
   initEditor(); 
-  fetchScripts('', 'new'); // Initial load
+  fetchScripts('', 'new');
   log('dim', 'Lunar UI ready'); 
   setStatus('ready');
   
-  // Add Tab Button
   document.getElementById('add-tab-btn').addEventListener('click', () => {
     if(editorReady) addTab('Untitled', '');
   });
 
-  // Global shortcuts
   window.addEventListener('keydown', (e) => {
     if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='s') { e.preventDefault(); log('dim','Save triggered (mock)'); }
     if((e.ctrlKey||e.metaKey) && e.key==='Enter') { e.preventDefault(); log('success','Execute triggered (mock)'); }
