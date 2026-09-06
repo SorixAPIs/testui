@@ -17,18 +17,23 @@
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
-body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 13px; height: 100vh; overflow: hidden; user-select: none; }
+body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, -apple-system, sans-serif; font-size: 13px; height: 100vh; overflow: hidden; user-select: none; }
 #app { display: flex; flex-direction: column; height: 100%; }
 
 /* Top Nav */
 .top-nav { display: flex; align-items: center; justify-content: space-between; padding: 0 16px; height: 48px; background: var(--surface); border-bottom: 1px solid var(--border); }
-.logo { font-weight: 800; font-size: 20px; color: var(--text); letter-spacing: -1px; }
+.nav-logo { height: 24px; width: auto; object-fit: contain; margin-right: 16px; }
 .nav-links { display: flex; gap: 4px; background: var(--surface-2); padding: 4px; border-radius: 8px; }
 .nav-btn { display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: transparent; border: none; color: var(--text-dim); border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 500; transition: all 0.2s; }
 .nav-btn:hover { color: var(--text); background: var(--surface-3); }
 .nav-btn.active { background: var(--surface-3); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
-.window-controls { display: flex; gap: 16px; color: var(--text-muted); font-size: 14px; cursor: pointer; }
-.window-controls span:hover { color: var(--text); }
+.nav-btn i { width: 14px; height: 14px; }
+
+.window-controls { display: flex; gap: 8px; }
+.win-btn { background: none; border: none; color: var(--text-muted); width: 32px; height: 32px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+.win-btn:hover { background: var(--surface-3); color: var(--text); }
+.win-btn.close:hover { background: #ef4444; color: #fff; }
+.win-btn i { width: 16px; height: 16px; }
 
 /* Content Area */
 .content-area { flex: 1; overflow: hidden; position: relative; }
@@ -52,9 +57,18 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
 .sidebar-footer code { display: block; margin-top: 4px; color: var(--text-dim); font-family: monospace; }
 
 .editor-pane { flex: 1; display: flex; flex-direction: column; background: var(--bg); }
+.editor-tabs { display: flex; background: var(--surface); border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; }
+.editor-tabs::-webkit-scrollbar { display: none; }
+.etab { display: flex; align-items: center; gap: 6px; padding: 8px 16px; font-size: 12px; color: var(--text-dim); cursor: pointer; border-right: 1px solid var(--border); min-width: 100px; max-width: 200px; user-select: none; transition: background 0.2s; white-space: nowrap; }
+.etab:hover { background: var(--surface-2); color: var(--text); }
+.etab.active { background: var(--bg); color: var(--accent); border-top: 2px solid var(--accent); }
+.etab .etab-close { margin-left: auto; width: 16px; height: 16px; border-radius: 4px; display: flex; align-items: center; justify-content: center; opacity: 0.5; }
+.etab .etab-close:hover { opacity: 1; background: rgba(255,255,255,0.1); }
+.etab.dirty .etab-name::after { content: ' •'; color: var(--accent); }
+
 .monaco-host { flex: 1; }
 .editor-toolbar { display: flex; align-items: center; padding: 8px 12px; background: var(--surface); border-top: 1px solid var(--border); gap: 8px; }
-.primary-btn, .secondary-btn { padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid var(--border); transition: all 0.2s; }
+.primary-btn, .secondary-btn { display: flex; align-items: center; justify-content: center; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid var(--border); transition: all 0.2s; }
 .primary-btn { background: var(--surface-2); color: var(--text); }
 .primary-btn:hover { background: var(--surface-3); }
 .primary-btn.accent { background: var(--accent); color: #fff; border-color: var(--accent); }
@@ -83,7 +97,6 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
 .sh-tab.active { color: var(--text); border-bottom-color: var(--accent); }
 .sh-search-row { display: flex; gap: 12px; }
 .search-box { flex: 1; position: relative; display: flex; align-items: center; }
-.search-box svg { position: absolute; left: 12px; color: var(--text-muted); pointer-events: none; }
 .search-box input { width: 100%; padding: 10px 12px 10px 36px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 13px; }
 .search-box input:focus { border-color: var(--accent); }
 .filter-btn { display: flex; align-items: center; gap: 6px; padding: 0 16px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 13px; cursor: pointer; }
@@ -139,7 +152,6 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
 .settings-nav-item.active { background: var(--surface-2); color: var(--text); border-left-color: var(--accent); }
 .settings-footer { margin-top: auto; padding: 16px 20px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 12px; }
 .search-settings { position: relative; display: flex; align-items: center; }
-.search-settings svg { position: absolute; left: 10px; color: var(--text-muted); pointer-events: none; }
 .search-settings input { width: 100%; padding: 8px 10px 8px 32px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 12px; }
 .reset-btn { width: 100%; padding: 8px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; color: var(--text-dim); font-size: 12px; cursor: pointer; }
 .reset-btn:hover { background: var(--surface-3); color: var(--text); }
