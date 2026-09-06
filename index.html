@@ -8,7 +8,6 @@
   </head>
   <body>
     <div id="app">
-      <!-- Title bar -->
       <header class="titlebar">
         <div class="titlebar-left">
           <span class="brand">Lunar</span>
@@ -19,7 +18,6 @@
         </div>
       </header>
 
-      <!-- Tabs row -->
       <nav class="tabs" id="tabs">
         <div class="tabs-list" id="tabs-list"></div>
         <div class="tabs-actions">
@@ -27,7 +25,6 @@
         </div>
       </nav>
 
-      <!-- Main 2-column area: sidebar | editor -->
       <main class="main">
         <aside class="sidebar">
           <div class="sidebar-header">
@@ -63,7 +60,6 @@
         </section>
       </main>
 
-      <!-- Console panel -->
       <section class="console" id="console-panel">
         <div class="console-header">
           <span>Console</span>
@@ -72,7 +68,6 @@
         <div class="console-body" id="console-body"></div>
       </section>
 
-      <!-- Status bar -->
       <footer class="statusbar">
         <span id="status-text">ready</span>
         <span class="grow"></span>
@@ -80,9 +75,7 @@
       </footer>
     </div>
 
-    <!-- Monaco loader -->
     <script>
-      // Configure AMD loader BEFORE Monaco loads.
       window.MonacoEnvironment = {
         getWorkerUrl: function (moduleId, label) {
           const baseUrl = 'https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs';
