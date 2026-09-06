@@ -1,9 +1,15 @@
 // --- STATE & UTILS ---
 const state = {
-  tabs: [], activeTabId: null, nextTabId: 1, scripts: [], filter: '',
-  shSort: 'new', shFilters: { keyless: false, free: false, mobile: false, verified: false, updated_week: false }
+  tabs: [], 
+  activeTabId: null, 
+  nextTabId: 1, 
+  scripts: [], 
+  filter: '',
+  shSort: 'new', 
+  shFilters: { keyless: false, free: false, mobile: false, verified: false, updated_week: false }
 };
 let editor = null;
+let editorReady = false;
 
 function uid() { return `t${state.nextTabId++}`; }
 function activeTab() { return state.tabs.find((t) => t.id === state.activeTabId) || null; }
@@ -113,8 +119,14 @@ function initEditor() {
         t.content = editor.getValue(); if(!t.dirty){t.dirty=true; renderEditorTabs();}
       }
     });
-    if(state.tabs.length===0) addTab('Start', '-- welcome to Lunar\nprint("hello skid works")\n');
-    else { const t=activeTab(); if(t&&editor) editor.setValue(t.content); }
+    
+    // Initialize first tab AFTER editor is ready
+    editorReady = true;
+    if(state.tabs.length===0) {
+      addTab('Start', '-- welcome to Lunar\nprint("hello skid works")\n');
+    } else {
+      const t=activeTab(); if(t&&editor) editor.setValue(t.content);
+    }
   });
 }
 
@@ -232,5 +244,16 @@ window.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('keydown', (e) => {
     if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='s') { e.preventDefault(); log('dim','Save triggered (mock)'); }
     if((e.ctrlKey||e.metaKey) && e.key==='Enter') { e.preventDefault(); log('success','Execute triggered (mock)'); }
+    if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='n') { 
+      e.preventDefault(); 
+      if(editorReady) addTab('untitled', ''); 
+      else log('error', 'Editor not ready yet');
+    }
+  });
+  
+  // New tab button
+  document.getElementById('tab-new')?.addEventListener('click', () => {
+    if(editorReady) addTab('untitled', '');
+    else log('error', 'Editor not ready yet');
   });
 });
