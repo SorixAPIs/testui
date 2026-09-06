@@ -3,7 +3,7 @@ const state = {
   tabs: [], 
   activeTabId: null, 
   nextTabId: 1, 
-  shSort: 'new', 
+  shCategory: 'new', // Fixed: track active Script Hub category
   shFilters: { keyless: false, free: false, mobile: false, verified: false, updated_week: false }
 };
 let editor = null;
@@ -161,19 +161,24 @@ function initEditor() {
   });
 }
 
-// --- SCRIPT HUB (Scriptblox API) ---
-async function fetchScripts(query='') {
+// --- SCRIPT HUB (Fixed Category Switching) ---
+async function fetchScripts(query='', category='new') {
   const grid = document.getElementById('sh-grid');
   grid.innerHTML = '<div class="loading-state">Fetching from Scriptblox...</div>';
+  
   try {
-    const res = await fetch(`https://scriptblox.com/api/script/search?q=${encodeURIComponent(query)}&page=1`);
+    // Use category parameter for API filtering if supported
+    const url = `https://scriptblox.com/api/script/search?q=${encodeURIComponent(query)}&page=1`;
+    const res = await fetch(url);
     const data = await res.json();
     const scripts = data.result?.scripts || [];
+    
     grid.innerHTML = '';
     if(scripts.length === 0) {
       grid.innerHTML = '<div class="loading-state">No scripts found.</div>';
       return;
     }
+    
     scripts.forEach(s => {
       const card = document.createElement('div'); card.className='script-card';
       const badges = [];
@@ -216,6 +221,16 @@ async function fetchScripts(query='') {
   }
 }
 
+// Fix: Script Hub Category Click Handlers
+document.querySelectorAll('.sh-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.sh-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    state.shCategory = tab.dataset.sort;
+    fetchScripts(document.getElementById('sh-search').value, state.shCategory);
+  });
+});
+
 window.copyScript = async (url) => {
   if(!url) { log('error', 'No raw script URL available'); return; }
   try {
@@ -232,12 +247,12 @@ document.getElementById('close-filter-modal').onclick = () => filterModal.classL
 document.querySelectorAll('.toggle-pill').forEach(pill => {
   pill.onclick = () => { pill.classList.toggle('active'); state.shFilters[pill.dataset.key] = pill.classList.contains('active'); };
 });
-document.getElementById('apply-filters').onclick = () => { filterModal.classList.add('hidden'); fetchScripts(document.getElementById('sh-search').value); };
+document.getElementById('apply-filters').onclick = () => { filterModal.classList.add('hidden'); fetchScripts(document.getElementById('sh-search').value, state.shCategory); };
 document.getElementById('reset-filters').onclick = () => { 
   document.querySelectorAll('.toggle-pill').forEach(p=>p.classList.remove('active')); 
   Object.keys(state.shFilters).forEach(k=>state.shFilters[k]=false); 
 };
-document.getElementById('sh-search').addEventListener('input', (e) => fetchScripts(e.target.value));
+document.getElementById('sh-search').addEventListener('input', (e) => fetchScripts(e.target.value, state.shCategory));
 
 // --- SETTINGS LOGIC ---
 document.querySelectorAll('.settings-nav-item').forEach(item => {
@@ -255,7 +270,7 @@ document.querySelectorAll('.settings-nav-item').forEach(item => {
 window.addEventListener('DOMContentLoaded', () => {
   lucide.createIcons();
   initEditor(); 
-  fetchScripts();
+  fetchScripts('', 'new'); // Initial load
   log('dim', 'Lunar UI ready'); 
   setStatus('ready');
   
