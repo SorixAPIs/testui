@@ -20,14 +20,23 @@
 body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, -apple-system, sans-serif; font-size: 13px; height: 100vh; overflow: hidden; user-select: none; }
 #app { display: flex; flex-direction: column; height: 100%; }
 
-/* Top Nav */
+/* Top Nav - Animated Icon Tabs */
 .top-nav { display: flex; align-items: center; justify-content: space-between; padding: 0 16px; height: 48px; background: var(--surface); border-bottom: 1px solid var(--border); }
 .nav-logo { height: 24px; width: auto; object-fit: contain; margin-right: 16px; }
 .nav-links { display: flex; gap: 4px; background: var(--surface-2); padding: 4px; border-radius: 8px; }
-.nav-btn { display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: transparent; border: none; color: var(--text-dim); border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 500; transition: all 0.2s; }
-.nav-btn:hover { color: var(--text); background: var(--surface-3); }
-.nav-btn.active { background: var(--surface-3); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
-.nav-btn i { width: 14px; height: 14px; }
+.nav-btn { 
+  display: flex; align-items: center; justify-content: center; gap: 8px; 
+  padding: 6px; background: transparent; border: none; color: var(--text-dim); 
+  border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 500; 
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+  white-space: nowrap; overflow: hidden; width: 36px; min-width: 36px;
+}
+.nav-btn:hover, .nav-btn.active { 
+  width: 120px; padding: 6px 12px; background: var(--surface-3); color: var(--text); 
+}
+.nav-btn i { width: 16px; height: 16px; flex-shrink: 0; }
+.nav-btn span { opacity: 0; transition: opacity 0.2s ease; }
+.nav-btn:hover span, .nav-btn.active span { opacity: 1; }
 
 .window-controls { display: flex; gap: 8px; }
 .win-btn { background: none; border: none; color: var(--text-muted); width: 32px; height: 32px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
@@ -58,8 +67,8 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', system-u
 
 .editor-pane { flex: 1; display: flex; flex-direction: column; background: var(--bg); position: relative; }
 
-/* Welcome Screen */
-.welcome-screen { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; overflow-y: auto; background: var(--bg); }
+/* Welcome Screen (Integrated as Tab Content) */
+.welcome-screen { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; overflow-y: auto; background: var(--bg); animation: fadeIn 0.4s ease; }
 .welcome-title { font-size: 28px; font-weight: 700; color: var(--text); margin-bottom: 32px; letter-spacing: -0.5px; }
 .welcome-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; width: 100%; max-width: 800px; }
 .welcome-card { display: flex; align-items: center; gap: 16px; padding: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; transition: all 0.2s; }
