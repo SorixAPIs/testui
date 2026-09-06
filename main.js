@@ -3,8 +3,6 @@ const state = {
   tabs: [], 
   activeTabId: null, 
   nextTabId: 1, 
-  scripts: [], 
-  filter: '',
   shSort: 'new', 
   shFilters: { keyless: false, free: false, mobile: false, verified: false, updated_week: false }
 };
@@ -130,15 +128,10 @@ function initEditor() {
   });
 }
 
-// Sidebar Mock
+// Sidebar is now empty - no mock scripts
 function renderSidebar() {
-  const tree = document.getElementById('sidebar-tree'); tree.innerHTML='';
-  const mock = [{name:'aimbot.luau'},{name:'esp.luau'},{name:'auto_farm.lua'}];
-  mock.forEach(s => {
-    const div = document.createElement('div'); div.className='tree-node'; div.textContent=s.name;
-    div.onclick = () => { addTab(s.name, `-- loaded ${s.name}\n`); };
-    tree.appendChild(div);
-  });
+  const tree = document.getElementById('sidebar-tree'); 
+  if(tree) tree.innerHTML = '<div style="padding:12px;color:var(--text-muted);font-size:12px;">No scripts loaded</div>';
 }
 
 // --- SCRIPT HUB (Scriptblox API) ---
@@ -227,7 +220,7 @@ document.querySelectorAll('.settings-nav-item').forEach(item => {
     item.classList.add('active');
     const target = document.getElementById(`setting-${item.dataset.setting}`);
     if(target) target.classList.add('active');
-    else document.getElementById('setting-resources').classList.add('active'); // fallback
+    else document.getElementById('setting-resources').classList.add('active');
   });
 });
 
@@ -249,11 +242,5 @@ window.addEventListener('DOMContentLoaded', () => {
       if(editorReady) addTab('untitled', ''); 
       else log('error', 'Editor not ready yet');
     }
-  });
-  
-  // New tab button
-  document.getElementById('tab-new')?.addEventListener('click', () => {
-    if(editorReady) addTab('untitled', '');
-    else log('error', 'Editor not ready yet');
   });
 });
